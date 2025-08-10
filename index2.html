@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkVault - Your Beautiful Link Storage</title>
-       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #6366f1;
@@ -133,7 +133,7 @@
             width: 100%;
         }
 
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
             padding: 0.75rem 1rem;
             background: rgba(255, 255, 255, 0.1);
@@ -145,7 +145,7 @@
             -webkit-appearance: none;
         }
 
-        .input-group input:focus {
+        .input-group input:focus, .input-group select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
@@ -190,13 +190,26 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        /* Search */
-        .search-container {
+        /* Search and Filter */
+        .search-filter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
             margin-bottom: 1.25rem;
-            position: relative;
         }
 
-        .search-input {
+        @media (min-width: 640px) {
+            .search-filter-container {
+                flex-direction: row;
+            }
+        }
+
+        .search-container, .filter-container {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-input, .filter-select {
             width: 100%;
             padding: 0.75rem 1rem 0.75rem 2.75rem;
             background: rgba(255, 255, 255, 0.1);
@@ -205,17 +218,65 @@
             color: var(--light);
             font-size: 1rem;
             transition: all 0.3s ease;
+            -webkit-appearance: none;
+        }
+
+        .search-input {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: 1rem center;
             background-size: 1rem;
-            -webkit-appearance: none;
         }
 
-        .search-input:focus {
+        .filter-select {
+            padding-left: 2.75rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2h-11z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 1rem center;
+            background-size: 1rem;
+        }
+
+        .search-input:focus, .filter-select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
         }
 
         /* Links Grid */
@@ -223,7 +284,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 1.25rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
         .link-card {
@@ -576,6 +637,38 @@
             gap: 0.5rem;
         }
 
+        /* Add Section Button */
+        .add-section-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            color: var(--gray);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .add-section-btn:hover, .add-section-btn:focus {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--light);
+        }
+
+        /* Section Color Indicators */
+        .section-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
         /* Responsive Adjustments */
         @media (min-width: 480px) {
             .stats {
@@ -597,6 +690,10 @@
 
             .stat-card p {
                 font-size: 1.5rem;
+            }
+
+            .add-section-btn {
+                width: auto;
             }
         }
 
@@ -657,7 +754,8 @@
         @media (hover: none) {
             .btn:hover, .btn:focus,
             .action-btn:hover, .action-btn:focus,
-            .modal-close:hover, .modal-close:focus {
+            .modal-close:hover, .modal-close:focus,
+            .add-section-btn:hover, .add-section-btn:focus {
                 transform: none;
                 background: none;
                 color: inherit;
@@ -683,6 +781,41 @@
             .link-card:active {
                 transform: scale(0.98);
             }
+        }
+
+        /* Context Menu Styles */
+        .section-context-menu {
+            position: absolute;
+            background: var(--dark);
+            border: 1px solid var(--glass-border);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            color: var(--light);
+            font-size: 0.875rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .context-menu-item i {
+            width: 16px;
+            text-align: center;
         }
     </style>
 </head>
@@ -722,42 +855,94 @@
                 <div class="input-group">
                     <input type="text" id="link-title" placeholder="Custom title (optional)">
                 </div>
+                <div class="input-group">
+                    <select id="link-section">
+                        <option value="">No section</option>
+                        <!-- Sections will be added dynamically -->
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="search-container">
-            <input type="text" class="search-input" id="search-input" placeholder="Search your links...">
+        <div class="search-filter-container">
+            <div class="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search your links...">
+            </div>
+            <div class="filter-container">
+                <select class="filter-select" id="filter-section">
+                    <option value="">All sections</option>
+                    <!-- Sections will be added dynamically -->
+                </select>
+            </div>
         </div>
 
-        <div class="links-grid" id="links-container">
-            <!-- Links will be added here dynamically -->
+        <button class="add-section-btn" id="add-section-btn">
+            <i class="fas fa-plus"></i> Add New Section
+        </button>
+
+        <div id="sections-container">
+            <!-- Sections will be added here dynamically -->
             <div class="empty-state">
-                <i class="fas fa-link"></i>
-                <h3>Your LinkVault is empty</h3>
-                <p>Start by adding your first link above. We'll automatically generate a thumbnail and extract metadata.</p>
+                <i class="fas fa-folder-open"></i>
+                <h3>No sections yet</h3>
+                <p>Create your first section to start organizing your links.</p>
                 <button class="btn btn-primary" id="add-demo-btn">
-                    <i class="fas fa-magic"></i> Add Demo Links
+                    <i class="fas fa-magic"></i> Add Demo Content
                 </button>
             </div>
         </div>
-    </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toast-container"></div>
+        <!-- Toast Container -->
+        <div class="toast-container" id="toast-container"></div>
 
-    <!-- Delete Confirmation Modal -->
-    <div class="modal-overlay" id="delete-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Delete Link</h3>
-                <button class="modal-close" id="modal-close">&times;</button>
+        <!-- Delete Confirmation Modal -->
+        <div class="modal-overlay" id="delete-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">Delete Link</h3>
+                    <button class="modal-close" id="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this link? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-delete">Cancel</button>
+                    <button class="btn btn-primary" id="confirm-delete">Delete</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this link? This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancel-delete">Cancel</button>
-                <button class="btn btn-primary" id="confirm-delete">Delete</button>
+        </div>
+
+        <!-- Add Section Modal -->
+        <div class="modal-overlay" id="section-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="section-modal-title">Add New Section</h3>
+                    <button class="modal-close" id="section-modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" id="section-name" placeholder="Section name" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <select id="section-color">
+                                <option value="#6366f1">Purple</option>
+                                <option value="#f43f5e">Pink</option>
+                                <option value="#10b981">Emerald</option>
+                                <option value="#f59e0b">Amber</option>
+                                <option value="#3b82f6">Blue</option>
+                                <option value="#84cc16">Lime</option>
+                                <option value="#ef4444">Red</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancel-section">Cancel</button>
+                    <button class="btn btn-primary" id="save-section">Save</button>
+                </div>
             </div>
         </div>
     </div>
@@ -765,30 +950,42 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
-            const linksContainer = document.getElementById('links-container');
+            const sectionsContainer = document.getElementById('sections-container');
             const addLinkBtn = document.getElementById('add-link-btn');
             const linkUrlInput = document.getElementById('link-url');
             const linkTitleInput = document.getElementById('link-title');
+            const linkSectionSelect = document.getElementById('link-section');
             const searchInput = document.getElementById('search-input');
+            const filterSectionSelect = document.getElementById('filter-section');
             const totalLinksEl = document.getElementById('total-links');
             const linksTodayEl = document.getElementById('links-today');
             const uniqueDomainsEl = document.getElementById('unique-domains');
             const addDemoBtn = document.getElementById('add-demo-btn');
+            const addSectionBtn = document.getElementById('add-section-btn');
             const toastContainer = document.getElementById('toast-container');
             const deleteModal = document.getElementById('delete-modal');
             const modalClose = document.getElementById('modal-close');
             const cancelDelete = document.getElementById('cancel-delete');
             const confirmDelete = document.getElementById('confirm-delete');
+            const sectionModal = document.getElementById('section-modal');
+            const sectionModalTitle = document.getElementById('section-modal-title');
+            const sectionNameInput = document.getElementById('section-name');
+            const sectionColorSelect = document.getElementById('section-color');
+            const sectionModalClose = document.getElementById('section-modal-close');
+            const cancelSection = document.getElementById('cancel-section');
+            const saveSection = document.getElementById('save-section');
 
             // State
             let links = [];
+            let sections = [];
             let currentLinkToDelete = null;
-            let demoLinksAdded = false;
+            let currentSectionToEdit = null;
+            let demoContentAdded = false;
 
             // Initialize
-            loadLinks();
+            loadData();
             updateStats();
-            renderLinks();
+            renderSections();
 
             // Event Listeners
             addLinkBtn.addEventListener('click', addLink);
@@ -796,23 +993,34 @@
                 if (e.key === 'Enter') addLink();
             });
             searchInput.addEventListener('input', filterLinks);
+            filterSectionSelect.addEventListener('change', filterLinks);
             if (addDemoBtn) {
-                addDemoBtn.addEventListener('click', addDemoLinks);
+                addDemoBtn.addEventListener('click', addDemoContent);
             }
             modalClose.addEventListener('click', closeDeleteModal);
             cancelDelete.addEventListener('click', closeDeleteModal);
             confirmDelete.addEventListener('click', deleteLink);
+            addSectionBtn.addEventListener('click', openAddSectionModal);
+            sectionModalClose.addEventListener('click', closeSectionModal);
+            cancelSection.addEventListener('click', closeSectionModal);
+            saveSection.addEventListener('click', saveSectionHandler);
 
             // Functions
-            function loadLinks() {
+            function loadData() {
                 const savedLinks = localStorage.getItem('linkvault-links');
                 if (savedLinks) {
                     links = JSON.parse(savedLinks);
                 }
+
+                const savedSections = localStorage.getItem('linkvault-sections');
+                if (savedSections) {
+                    sections = JSON.parse(savedSections);
+                }
             }
 
-            function saveLinks() {
+            function saveData() {
                 localStorage.setItem('linkvault-links', JSON.stringify(links));
+                localStorage.setItem('linkvault-sections', JSON.stringify(sections));
             }
 
             function updateStats() {
@@ -841,383 +1049,88 @@
                 uniqueDomainsEl.textContent = domains.size;
             }
 
-            function renderLinks(filteredLinks = null) {
-                const linksToRender = filteredLinks || links;
-                
-                if (linksToRender.length === 0) {
-                    linksContainer.innerHTML = `
+            function updateSectionSelects() {
+                // Clear existing options except the first one
+                while (linkSectionSelect.options.length > 1) {
+                    linkSectionSelect.remove(1);
+                }
+                while (filterSectionSelect.options.length > 1) {
+                    filterSectionSelect.remove(1);
+                }
+
+                // Add sections to selects
+                sections.forEach(section => {
+                    const option1 = document.createElement('option');
+                    option1.value = section.id;
+                    option1.textContent = section.name;
+                    linkSectionSelect.appendChild(option1);
+
+                    const option2 = document.createElement('option');
+                    option2.value = section.id;
+                    option2.textContent = section.name;
+                    filterSectionSelect.appendChild(option2);
+                });
+            }
+
+            function renderSections(filteredLinks = null) {
+                if (sections.length === 0 && (!filteredLinks || filteredLinks.length === 0)) {
+                    sectionsContainer.innerHTML = `
                         <div class="empty-state">
-                            <i class="fas fa-link"></i>
-                            <h3>${filteredLinks ? 'No matching links found' : 'Your LinkVault is empty'}</h3>
-                            <p>${filteredLinks ? 'Try a different search term' : 'Start by adding your first link above. We\'ll automatically generate a thumbnail and extract metadata.'}</p>
-                            ${!filteredLinks ? '<button class="btn btn-primary" id="add-demo-btn"><i class="fas fa-magic"></i> Add Demo Links</button>' : ''}
+                            <i class="fas fa-folder-open"></i>
+                            <h3>${filteredLinks ? 'No matching links found' : 'No sections yet'}</h3>
+                            <p>${filteredLinks ? 'Try a different search term' : 'Create your first section to start organizing your links.'}</p>
+                            ${!filteredLinks ? '<button class="btn btn-primary" id="add-demo-btn"><i class="fas fa-magic"></i> Add Demo Content</button>' : ''}
                         </div>
                     `;
                     if (!filteredLinks) {
-                        document.getElementById('add-demo-btn').addEventListener('click', addDemoLinks);
+                        document.getElementById('add-demo-btn').addEventListener('click', addDemoContent);
                     }
                     return;
                 }
                 
-                linksContainer.innerHTML = '';
+                sectionsContainer.innerHTML = '';
                 
-                linksToRender.forEach((link, index) => {
-                    const linkCard = document.createElement('div');
-                    linkCard.className = 'link-card';
-                    linkCard.dataset.id = link.id;
-                    
-                    // Format date
-                    const dateAdded = new Date(link.addedAt);
-                    const today = new Date();
-                    const yesterday = new Date(today);
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    
-                    let dateText;
-                    if (dateAdded.toDateString() === today.toDateString()) {
-                        dateText = 'Today';
-                    } else if (dateAdded.toDateString() === yesterday.toDateString()) {
-                        dateText = 'Yesterday';
-                    } else {
-                        const diffDays = Math.abs(Math.floor((today - dateAdded) / (1000 * 60 * 60 * 24)));
-                        dateText = `${diffDays} days ago`;
-                    }
-                    
-                    // Extract domain
-                    let domain = '';
-                    try {
-                        const url = new URL(link.url);
-                        domain = url.hostname.replace('www.', '');
-                    } catch (e) {
-                        domain = 'unknown';
-                    }
-                    
-                    linkCard.innerHTML = `
-                        <div class="thumbnail-container">
-                            ${link.thumbnail ? 
-                                `<img src="${link.thumbnail}" alt="Thumbnail" class="thumbnail" onerror="this.parentElement.innerHTML = '<div class=\'thumbnail-placeholder\'><i class=\'fas fa-image\'></i></div>'">` : 
-                                `<div class="thumbnail-placeholder"><i class="fas fa-image"></i></div>`}
-                        </div>
-                        <div class="link-content">
-                            <div class="link-header">
-                                <h3 class="link-title">${link.title || 'Untitled Link'}</h3>
-                                <div class="link-actions">
-                                    <button class="action-btn copy" title="Copy URL" aria-label="Copy URL" data-id="${link.id}">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                    <button class="action-btn delete" title="Delete" aria-label="Delete Link" data-id="${link.id}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="link-url">${link.url}</a>
-                            ${link.description ? `<p class="link-description">${link.description}</p>` : ''}
-                            <div class="link-meta">
-                                <span class="link-domain">
-                                    <i class="fas fa-globe"></i> ${domain}
-                                </span>
-                                <span>${dateText}</span>
-                            </div>
-                        </div>
-                    `;
-                    
-                    linksContainer.appendChild(linkCard);
-                });
+                // Group links by section
+                const linksBySection = {};
+                const allLinks = filteredLinks || links;
                 
-                // Add event listeners to action buttons
-                document.querySelectorAll('.action-btn.copy').forEach(btn => {
-                    btn.addEventListener('click', copyLink);
-                });
-                
-                document.querySelectorAll('.action-btn.delete').forEach(btn => {
-                    btn.addEventListener('click', confirmDeleteLink);
-                });
-            }
-
-            function filterLinks() {
-                const searchTerm = searchInput.value.toLowerCase();
-                if (!searchTerm) {
-                    renderLinks();
-                    return;
-                }
-                
-                const filtered = links.filter(link => {
-                    return (
-                        (link.title && link.title.toLowerCase().includes(searchTerm)) ||
-                        (link.url && link.url.toLowerCase().includes(searchTerm)) ||
-                        (link.description && link.description.toLowerCase().includes(searchTerm))
-                    );
-                });
-                
-                renderLinks(filtered);
-            }
-
-            async function addLink() {
-                const url = linkUrlInput.value.trim();
-                const customTitle = linkTitleInput.value.trim();
-                
-                if (!url) {
-                    showToast('Please enter a URL', 'error');
-                    linkUrlInput.focus();
-                    return;
-                }
-                
-                // Validate URL
-                try {
-                    new URL(url);
-                } catch (e) {
-                    showToast('Please enter a valid URL', 'error');
-                    linkUrlInput.focus();
-                    return;
-                }
-                
-                // Check for duplicate
-                if (links.some(link => link.url === url)) {
-                    showToast('This link already exists', 'warning');
-                    return;
-                }
-                
-                // Disable button and show loading
-                addLinkBtn.disabled = true;
-                addLinkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-                
-                try {
-                    // Simulate thumbnail generation and metadata extraction
-                    const metadata = await extractMetadata(url);
-                    
-                    const newLink = {
-                        id: Date.now().toString(),
-                        url,
-                        title: customTitle || metadata.title,
-                        description: metadata.description,
-                        thumbnail: metadata.image || await generateThumbnail(url),
-                        addedAt: new Date().toISOString()
+                // Initialize with all sections (even if empty)
+                sections.forEach(section => {
+                    linksBySection[section.id] = {
+                        section,
+                        links: []
                     };
-                    
-                    links.unshift(newLink);
-                    saveLinks();
-                    updateStats();
-                    renderLinks();
-                    
-                    // Reset form
-                    linkUrlInput.value = '';
-                    linkTitleInput.value = '';
-                    
-                    showToast('Link added successfully', 'success');
-                } catch (error) {
-                    console.error('Error adding link:', error);
-                    showToast('Failed to add link', 'error');
-                } finally {
-                    addLinkBtn.disabled = false;
-                    addLinkBtn.innerHTML = '<i class="fas fa-plus"></i> Add Link';
-                }
-            }
-
-            function copyLink(e) {
-                const linkId = e.currentTarget.dataset.id;
-                const link = links.find(l => l.id === linkId);
+                });
                 
-                if (link) {
-                    navigator.clipboard.writeText(link.url)
-                        .then(() => {
-                            showToast('Link copied to clipboard', 'success');
-                        })
-                        .catch(() => {
-                            showToast('Failed to copy link', 'error');
-                        });
-                }
-            }
-
-            function confirmDeleteLink(e) {
-                currentLinkToDelete = e.currentTarget.dataset.id;
-                deleteModal.classList.add('active');
-            }
-
-            function closeDeleteModal() {
-                deleteModal.classList.remove('active');
-                currentLinkToDelete = null;
-            }
-
-            function deleteLink() {
-                if (!currentLinkToDelete) return;
+                // Add a special group for links without a section
+                linksBySection['no-section'] = {
+                    section: null,
+                    links: []
+                };
                 
-                const index = links.findIndex(link => link.id === currentLinkToDelete);
-                if (index !== -1) {
-                    links.splice(index, 1);
-                    saveLinks();
-                    updateStats();
-                    
-                    // Check if we're currently filtering
-                    if (searchInput.value) {
-                        filterLinks();
+                // Categorize links
+                allLinks.forEach(link => {
+                    if (link.sectionId) {
+                        if (linksBySection[link.sectionId]) {
+                            linksBySection[link.sectionId].links.push(link);
+                        }
                     } else {
-                        renderLinks();
+                        linksBySection['no-section'].links.push(link);
                     }
+                });
+                
+                // Render sections with links
+                Object.keys(linksBySection).forEach(sectionKey => {
+                    const sectionData = linksBySection[sectionKey];
+                    const sectionLinks = sectionData.links;
                     
-                    showToast('Link deleted', 'success');
-                }
-                
-                closeDeleteModal();
-            }
-
-            function addDemoLinks() {
-                if (demoLinksAdded) {
-                    showToast('Demo links already added', 'warning');
-                    return;
-                }
-                demoLinksAdded = true; // Prevent multiple additions
-                
-                const demoLinks = [
-                    {
-                        url: 'https://github.com',
-                        title: 'GitHub',
-                        description: 'GitHub is where over 100 million developers shape the future of software, together.',
-                        thumbnail: 'https://opengraph.githubassets.com/1/github'
-                    },
-                    {
-                        url: 'https://stackoverflow.com',
-                        title: 'Stack Overflow',
-                        description: 'Stack Overflow is the largest, most trusted online community for developers to learn, share their programming knowledge.',
-                        thumbnail: 'https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon@2.png'
-                    },
-                    {
-                        url: 'https://developer.mozilla.org',
-                        title: 'MDN Web Docs',
-                        description: 'The MDN Web Docs site provides information about Open Web technologies including HTML, CSS, and APIs for both Web sites and progressive web apps.',
-                        thumbnail: 'https://developer.mozilla.org/static/img/opengraph-logo.72382e605ce3.png'
-                    },
-                    {
-                        url: 'https://css-tricks.com',
-                        title: 'CSS-Tricks',
-                        description: 'CSS-Tricks is a website about websites. Daily articles about CSS, HTML, JavaScript, and all things related to web design and development.',
-                        thumbnail: 'https://css-tricks.com/apple-touch-icon.png'
-                    },
-                    {
-                        url: 'https://www.freecodecamp.org',
-                        title: 'freeCodeCamp',
-                        description: 'Learn to code for free. Build projects. Earn certifications. Since 2014, more than 40,000 freeCodeCamp.org graduates have gotten jobs at tech companies.',
-                        thumbnail: 'https://www.freecodecamp.org/icons/icon-512x512.png'
-                    },
-                    {
-                        url: 'https://dev.to',
-                        title: 'DEV Community',
-                        description: 'A constructive and inclusive social network for software developers. With you every step of your journey.',
-                        thumbnail: 'https://res.cloudinary.com/practicaldev/image/fetch/s--t7tVouP9--/c_limit,f_auto,fl_progressive,q_80,w_180/https://practicaldev-herokuapp-com.freetls.fastly.net/assets/devlogo-pwa-512.png'
+                    // Skip empty sections when filtering
+                    if (filteredLinks && sectionLinks.length === 0) return;
+                    
+                            // Skip the "no section" group if empty
+                                if (sectionKey === 'no-section' && sectionLinks.length === 0) return;
+            
+                                // Render the section
+                                renderSection(sectionData.section, sectionLinks);
+                            });
                     }
-                ];
-                
-                demoLinks.forEach((demoLink, i) => {
-                    setTimeout(() => {
-                        const newLink = {
-                            id: `demo-${Date.now() + i}`,
-                            url: demoLink.url,
-                            title: demoLink.title,
-                            description: demoLink.description,
-                            thumbnail: demoLink.thumbnail,
-                            addedAt: new Date(Date.now() - (i * 3600000)).toISOString() // Stagger times
-                        };
-                        
-                        links.unshift(newLink);
-                        saveLinks();
-                        
-                        if (i === demoLinks.length - 1) {
-                            updateStats();
-                            renderLinks();
-                            demoLinksAdded = true;
-                            showToast('Demo links added', 'success');
-                        }
-                    }, i * 200);
-                });
-            }
-
-            // Simulated API functions
-            async function extractMetadata(url) {
-                // In a real app, you would call an API here
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        const fakeMetadata = {
-                            title: getRandomTitle(url),
-                            description: getRandomDescription(),
-                            image: Math.random() > 0.3 ? getRandomImage(url) : null // 30% chance of no image
-                        };
-                        resolve(fakeMetadata);
-                    }, 800);
-                });
-            }
-
-            async function generateThumbnail(url) {
-                // In a real app, you would call a screenshot API here
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        // 10% chance of failure to simulate errors
-                        if (Math.random() < 0.1) {
-                            resolve(null);
-                        } else {
-                            resolve(getRandomImage(url));
-                        }
-                    }, 1500);
-                });
-            }
-
-            function getRandomTitle(url) {
-                const domain = new URL(url).hostname.replace('www.', '').replace('.com', '');
-                const prefixes = ['Awesome', 'Great', 'Useful', 'Interesting', 'Helpful', 'Must-see'];
-                const suffixes = ['Resource', 'Website', 'Page', 'Guide', 'Tutorial', 'Reference'];
-                
-                const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-                const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-                
-                return `${randomPrefix} ${domain} ${randomSuffix}`;
-            }
-
-            function getRandomDescription() {
-                const descriptions = [
-                    'This is a fantastic resource for learning and development.',
-                    'A must-bookmark site for any serious developer.',
-                    'Packed with useful information and tutorials.',
-                    'One of the best resources available on this topic.',
-                    'Regularly updated with fresh content and examples.',
-                    'The community around this resource is very helpful.',
-                    'Great for beginners and experienced developers alike.'
-                ];
-                
-                return descriptions[Math.floor(Math.random() * descriptions.length)];
-            }
-
-            function getRandomImage(url) {
-                const domain = new URL(url).hostname.replace('www.', '').replace('.com', '');
-                const colors = ['6366f1', 'f43f5e', '10b981', 'f59e0b', '3b82f6'];
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                
-                return `https://via.placeholder.com/600x400/${color}/ffffff?text=${encodeURIComponent(domain)}`;
-            }
-
-            function showToast(message, type = 'success') {
-                const toast = document.createElement('div');
-                toast.className = `toast ${type}`;
-                toast.innerHTML = `
-                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-exclamation-triangle'}"></i>
-                    <span>${message}</span>
-                `;
-                
-                toastContainer.appendChild(toast);
-                
-                // Trigger reflow to enable animation
-                void toast.offsetWidth;
-                
-                toast.classList.add('show');
-                
-                // Auto-dismiss after 3 seconds
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    toast.classList.add('hide');
-                    
-                    // Remove after animation completes
-                    setTimeout(() => {
-                        toast.remove();
-                    }, 300);
-                }, 3000);
-            }
-        });
-    </script>
-</body>
-</html>
