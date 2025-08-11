@@ -1,270 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Smart Link Saver with Thumbnails</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 1rem;
-    background: #f9f9f9;
-  }
-  h1 {
-    margin-bottom: 0.5rem;
-  }
-  form {
-    margin-bottom: 1rem;
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-  input[type="url"], input[type="text"] {
-    padding: 0.5rem;
-    font-size: 1rem;
-    flex-grow: 1;
-    min-width: 200px;
-  }
-  button {
-    padding: 0 1rem;
-    font-size: 1rem;
-    cursor: pointer;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  .links-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
-    gap: 1rem;
-  }
-  .link-card {
-    background: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  .link-thumb {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    background: #ddd;
-  }
-  .link-content {
-    padding: 0.75rem 1rem;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .link-title {
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin: 0 0 0.3rem;
-  }
-  .link-url {
-    color: #555;
-    font-size: 0.9rem;
-    word-break: break-all;
-    margin-bottom: 0.5rem;
-  }
-  .toast {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    background: #333;
-    color: white;
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 9999;
-  }
-  .toast.show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .toast.success {
-    background: #28a745;
-  }
-  .toast.error {
-    background: #dc3545;
-  }
-  .toast.warning {
-    background: #ffc107;
-    color: #222;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Robust Link Previewer with Microlink API</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      margin: 0; padding: 2rem;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    h1 {
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+    form {
+      display: flex; gap: 0.5rem;
+      width: 100%; max-width: 600px;
+      margin-bottom: 1.5rem;
+    }
+    input[type="url"] {
+      flex-grow: 1;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      transition: border-color 0.3s ease;
+    }
+    input[type="url"]:focus {
+      border-color: #0078d7;
+      outline: none;
+    }
+    button {
+      background: #0078d7;
+      color: white;
+      border: none;
+      padding: 0 1.5rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    .previews {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      width: 100%;
+      max-width: 900px;
+    }
+    .preview {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+      width: 280px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+    .preview:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
+    }
+    .link-thumb {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      background: #ddd;
+      flex-shrink: 0;
+    }
+    .link-info {
+      padding: 1rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .link-title {
+      font-weight: 700;
+      color: #2c3e50;
+      font-size: 1.1rem;
+      margin: 0 0 0.4rem 0;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .link-description {
+      color: #555;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      overflow: hidden;
+      max-height: 3.6em;
+      text-overflow: ellipsis;
+      margin-bottom: auto;
+    }
+    .link-url {
+      color: #0078d7;
+      font-size: 0.85rem;
+      margin-top: 0.8rem;
+      word-break: break-all;
+    }
+    .error-msg {
+      color: #d9534f;
+      margin-top: 0.5rem;
+      font-weight: 600;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
+  <h1>Enterprise-Grade Link Previewer</h1>
 
-<h1>Smart Link Saver</h1>
-<form id="linkForm">
-  <input type="url" id="linkUrlInput" placeholder="Enter URL here" required autocomplete="off" />
-  <input type="text" id="linkTitleInput" placeholder="Optional custom title" autocomplete="off" />
-  <button type="submit" id="addLinkBtn">
-    <i class="fas fa-plus"></i> Add Link
-  </button>
-</form>
+  <form id="linkForm" aria-label="Add URL for preview">
+    <input
+      type="url"
+      id="urlInput"
+      placeholder="Enter a valid URL (e.g., https://example.com)"
+      required
+      autocomplete="off"
+      aria-required="true"
+      aria-describedby="errorMessage"
+    />
+    <button type="submit">Preview</button>
+  </form>
 
-<div class="links-container" id="linksContainer"></div>
+  <div id="errorMessage" class="error-msg" role="alert" aria-live="polite"></div>
 
-<div class="toast" id="toast"></div>
+  <div id="previews" class="previews" aria-live="polite"></div>
 
-<script>
-  const linkForm = document.getElementById('linkForm');
-  const linkUrlInput = document.getElementById('linkUrlInput');
-  const linkTitleInput = document.getElementById('linkTitleInput');
-  const addLinkBtn = document.getElementById('addLinkBtn');
-  const linksContainer = document.getElementById('linksContainer');
-  const toast = document.getElementById('toast');
+  <script>
+    const form = document.getElementById("linkForm");
+    const urlInput = document.getElementById("urlInput");
+    const previewsContainer = document.getElementById("previews");
+    const errorMessage = document.getElementById("errorMessage");
 
-  let links = JSON.parse(localStorage.getItem('links')) || [];
+    // Placeholder image if no thumbnail available
+    const PLACEHOLDER_IMG = "https://via.placeholder.com/400x160?text=No+Preview";
 
-  function showToast(message, type = 'success') {
-    toast.textContent = message;
-    toast.className = 'toast show ' + type;
-    clearTimeout(toast.timeoutId);
-    toast.timeoutId = setTimeout(() => {
-      toast.className = 'toast';
-    }, 3000);
-  }
+    // Extract metadata robustly with multiple fallback fields for images
+    async function extractMetadata(url) {
+      const encodedURL = encodeURIComponent(url);
+      // Use screenshot=false to get metadata faster, embed essential fields
+      const apiURL = `https://api.microlink.io/?url=${encodedURL}&meta=true&screenshot=false&embed=title,description,image,logo,screenshot`;
 
-  function saveLinks() {
-    localStorage.setItem('links', JSON.stringify(links));
-  }
+      try {
+        const response = await fetch(apiURL);
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
 
-  function renderLinks() {
-    if (links.length === 0) {
-      linksContainer.innerHTML = '<p>No saved links yet.</p>';
-      return;
+        const { data } = await response.json();
+
+        // Try multiple image sources in priority order
+        const imageUrl =
+          data.screenshot?.url ||
+          data.image?.url ||
+          data.logo?.url ||
+          null;
+
+        return {
+          title: data.title || url,
+          description: data.description || '',
+          image: imageUrl,
+          url: url,
+        };
+      } catch (error) {
+        console.warn("Microlink API fetch failed:", error);
+        return {
+          title: url,
+          description: '',
+          image: null,
+          url: url,
+        };
+      }
     }
-    linksContainer.innerHTML = links
-      .map(link => `
-        <div class="link-card">
-          <img 
-            class="link-thumb" 
-            src="${link.thumbnail || 'https://via.placeholder.com/400x160?text=No+Preview'}" 
-            alt="Thumbnail for ${link.title}" 
-            loading="lazy"
-            onerror="this.src='https://via.placeholder.com/400x160?text=No+Preview'"
-          />
-          <div class="link-content">
-            <a href="${link.url}" class="link-title" target="_blank" rel="noopener noreferrer">${escapeHtml(link.title)}</a>
-            <div class="link-url">${escapeHtml(link.url)}</div>
-          </div>
+
+    // Create and append preview card
+    function addPreviewCard({ title, description, image, url }) {
+      const preview = document.createElement("article");
+      preview.className = "preview";
+      preview.tabIndex = 0;
+      preview.setAttribute("role", "region");
+      preview.setAttribute("aria-label", `Preview for ${title}`);
+
+      preview.innerHTML = `
+        <img 
+          class="link-thumb"
+          src="${image || PLACEHOLDER_IMG}" 
+          alt="Preview image for ${title}" 
+          loading="lazy" 
+          onerror="this.onerror=null;this.src='${PLACEHOLDER_IMG}';"
+        />
+        <div class="link-info">
+          <h2 class="link-title" title="${title}">${title}</h2>
+          <p class="link-description">${description || 'No description available.'}</p>
+          <a href="${url}" target="_blank" rel="noopener noreferrer" class="link-url">${url}</a>
         </div>
-      `)
-      .join('');
-  }
+      `;
 
-  // Utility to escape HTML to prevent injection
-  function escapeHtml(text) {
-    return text.replace(/[&<>"']/g, (m) => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    })[m]);
-  }
-
-  async function extractMetadata(url) {
-    try {
-      const apiUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=false&meta=true&embed=screenshot.url,title,description`;
-      const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error('Microlink API failed');
-      const json = await response.json();
-      const data = json.data;
-
-      return {
-        title: data.title || url,
-        description: data.description || '',
-        image: data.screenshot?.url || null,
-      };
-    } catch (error) {
-      console.warn('Metadata extraction failed:', error);
-      return {
-        title: url,
-        description: '',
-        image: null,
-      };
-    }
-  }
-
-  linkForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const url = linkUrlInput.value.trim();
-    const customTitle = linkTitleInput.value.trim();
-
-    if (!url) {
-      showToast('Please enter a URL', 'error');
-      linkUrlInput.focus();
-      return;
+      previewsContainer.prepend(preview);
     }
 
-    try {
-      new URL(url);
-    } catch {
-      showToast('Please enter a valid URL', 'error');
-      linkUrlInput.focus();
-      return;
+    // Validate URL format (basic)
+    function isValidUrl(string) {
+      try {
+        new URL(string);
+        return true;
+      } catch {
+        return false;
+      }
     }
 
-    if (links.some(link => link.url === url)) {
-      showToast('This link already exists', 'warning');
-      return;
-    }
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorMessage.textContent = "";
 
-    addLinkBtn.disabled = true;
-    addLinkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+      const url = urlInput.value.trim();
+      if (!isValidUrl(url)) {
+        errorMessage.textContent = "Please enter a valid URL.";
+        urlInput.focus();
+        return;
+      }
 
-    try {
+      // Disable input & button while fetching
+      urlInput.disabled = true;
+      form.querySelector("button").disabled = true;
+
       const metadata = await extractMetadata(url);
+      addPreviewCard(metadata);
 
-      const newLink = {
-        id: Date.now().toString(),
-        url,
-        title: customTitle || metadata.title,
-        description: metadata.description,
-        thumbnail: metadata.image || null,
-        addedAt: new Date().toISOString(),
-      };
-
-      links.unshift(newLink);
-      saveLinks();
-      renderLinks();
-
-      linkUrlInput.value = '';
-      linkTitleInput.value = '';
-
-      showToast('Link added successfully', 'success');
-    } catch (error) {
-      console.error('Error adding link:', error);
-      showToast('Failed to add link', 'error');
-    } finally {
-      addLinkBtn.disabled = false;
-      addLinkBtn.innerHTML = '<i class="fas fa-plus"></i> Add Link';
-    }
-  });
-
-  // Initial render
-  renderLinks();
-</script>
-
-<!-- FontAwesome for spinner and plus icons -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
+      urlInput.value = "";
+      urlInput.disabled = false;
+      form.querySelector("button").disabled = false;
+      urlInput.focus();
+    });
+  </script>
 </body>
 </html>
