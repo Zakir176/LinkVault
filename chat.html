@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smart Link Saver with Thumbnails</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 1rem;
+    background: #f9f9f9;
+  }
+  h1 {
+    margin-bottom: 0.5rem;
+  }
+  form {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  input[type="url"], input[type="text"] {
+    padding: 0.5rem;
+    font-size: 1rem;
+    flex-grow: 1;
+    min-width: 200px;
+  }
+  button {
+    padding: 0 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .links-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+    gap: 1rem;
+  }
+  .link-card {
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .link-thumb {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: #ddd;
+  }
+  .link-content {
+    padding: 0.75rem 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .link-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 0 0 0.3rem;
+  }
+  .link-url {
+    color: #555;
+    font-size: 0.9rem;
+    word-break: break-all;
+    margin-bottom: 0.5rem;
+  }
+  .toast {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: #333;
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 9999;
+  }
+  .toast.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .toast.success {
+    background: #28a745;
+  }
+  .toast.error {
+    background: #dc3545;
+  }
+  .toast.warning {
+    background: #ffc107;
+    color: #222;
+  }
+</style>
+</head>
+<body>
+
+<h1>Smart Link Saver</h1>
+<form id="linkForm">
+  <input type="url" id="linkUrlInput" placeholder="Enter URL here" required autocomplete="off" />
+  <input type="text" id="linkTitleInput" placeholder="Optional custom title" autocomplete="off" />
+  <button type="submit" id="addLinkBtn">
+    <i class="fas fa-plus"></i> Add Link
+  </button>
+</form>
+
+<div class="links-container" id="linksContainer"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const linkForm = document.getElementById('linkForm');
+  const linkUrlInput = document.getElementById('linkUrlInput');
+  const linkTitleInput = document.getElementById('linkTitleInput');
+  const addLinkBtn = document.getElementById('addLinkBtn');
+  const linksContainer = document.getElementById('linksContainer');
+  const toast = document.getElementById('toast');
+
+  let links = JSON.parse(localStorage.getItem('links')) || [];
+
+  function showToast(message, type = 'success') {
+    toast.textContent = message;
+    toast.className = 'toast show ' + type;
+    clearTimeout(toast.timeoutId);
+    toast.timeoutId = setTimeout(() => {
+      toast.className = 'toast';
+    }, 3000);
+  }
+
+  function saveLinks() {
+    localStorage.setItem('links', JSON.stringify(links));
+  }
+
+  function renderLinks() {
+    if (links.length === 0) {
+      linksContainer.innerHTML = '<p>No saved links yet.</p>';
+      return;
+    }
+    linksContainer.innerHTML = links
+      .map(link => `
+        <div class="link-card">
+          <img 
+            class="link-thumb" 
+            src="${link.thumbnail || 'https://via.placeholder.com/400x160?text=No+Preview'}" 
+            alt="Thumbnail for ${link.title}" 
+            loading="lazy"
+            onerror="this.src='https://via.placeholder.com/400x160?text=No+Preview'"
+          />
+          <div class="link-content">
+            <a href="${link.url}" class="link-title" target="_blank" rel="noopener noreferrer">${escapeHtml(link.title)}</a>
+            <div class="link-url">${escapeHtml(link.url)}</div>
+          </div>
+        </div>
+      `)
+      .join('');
+  }
+
+  // Utility to escape HTML to prevent injection
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, (m) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[m]);
+  }
+
+  async function extractMetadata(url) {
+    try {
+      const apiUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=false&meta=true&embed=screenshot.url,title,description`;
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error('Microlink API failed');
+      const json = await response.json();
+      const data = json.data;
+
+      return {
+        title: data.title || url,
+        description: data.description || '',
+        image: data.screenshot?.url || null,
+      };
+    } catch (error) {
+      console.warn('Metadata extraction failed:', error);
+      return {
+        title: url,
+        description: '',
+        image: null,
+      };
+    }
+  }
+
+  linkForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const url = linkUrlInput.value.trim();
+    const customTitle = linkTitleInput.value.trim();
+
+    if (!url) {
+      showToast('Please enter a URL', 'error');
+      linkUrlInput.focus();
+      return;
+    }
+
+    try {
+      new URL(url);
+    } catch {
+      showToast('Please enter a valid URL', 'error');
+      linkUrlInput.focus();
+      return;
+    }
+
+    if (links.some(link => link.url === url)) {
+      showToast('This link already exists', 'warning');
+      return;
+    }
+
+    addLinkBtn.disabled = true;
+    addLinkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+    try {
+      const metadata = await extractMetadata(url);
+
+      const newLink = {
+        id: Date.now().toString(),
+        url,
+        title: customTitle || metadata.title,
+        description: metadata.description,
+        thumbnail: metadata.image || null,
+        addedAt: new Date().toISOString(),
+      };
+
+      links.unshift(newLink);
+      saveLinks();
+      renderLinks();
+
+      linkUrlInput.value = '';
+      linkTitleInput.value = '';
+
+      showToast('Link added successfully', 'success');
+    } catch (error) {
+      console.error('Error adding link:', error);
+      showToast('Failed to add link', 'error');
+    } finally {
+      addLinkBtn.disabled = false;
+      addLinkBtn.innerHTML = '<i class="fas fa-plus"></i> Add Link';
+    }
+  });
+
+  // Initial render
+  renderLinks();
+</script>
+
+<!-- FontAwesome for spinner and plus icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+</body>
+</html>
